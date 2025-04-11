@@ -1,0 +1,17 @@
+name: my_tasks
+version: 1.0.0
+description: >
+  یک پکیج محلی برای مدیریت وظایف در پروژه‌های فلاتر من.
+  این پکیج شامل مدل‌ها و ویجت‌های مشترک مربوط به تسک‌ها است.
+authors:
+  - AminPourabazari <abzery.ap@example.com>
+homepage:
+repository:
+issue_tracker:
+documentation:
+dependencies:
+
+dev_dependencies:
+
+environment:
+  sdk: '>=3.0.0'
