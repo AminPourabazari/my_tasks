@@ -10,8 +10,16 @@ repository:
 issue_tracker:
 documentation:
 dependencies:
+  flutter: 
+    sdk: flutter
+  url_launcher: any 
 
 dev_dependencies:
-
+  flutter_test:
+    sdk: flutter
+  flutter_lints: any 
+  
 environment:
   sdk: '>=3.0.0'
+
+flutter:
