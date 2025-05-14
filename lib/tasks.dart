@@ -1,3 +1,6 @@
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/material.dart';
+
 ///یک تابع برای تبدیل شماره‌ها و برخی حروف در زبان‌های فارسی، عربی و انگلیسی به همدیگر
 String convertNumber(String text, String language) {
   // دیکشنری‌ها در یک Map کلی
@@ -25,4 +28,83 @@ String convertNumber(String text, String language) {
     buffer.write(selectedMap[text[i]] ?? text[i]);
   }
   return buffer.toString();
+}
+
+/// تابع امتیازدهی مارکت‌ها
+Future rateApplication({required String packageName, required AppMarket market, BuildContext? context}) async {
+  String url;
+
+  switch (market) {
+    case AppMarket.bazaar: url = 'bazaar://details?id=$packageName';
+      break;
+    case AppMarket.myket: url = 'myket://comment?id=$packageName';
+      break;
+    case AppMarket.parshub: url = 'jhoobin://comment?q=$packageName';
+      break;
+    case AppMarket.playStore: url = 'market://details?id=$packageName';
+      break;
+    case AppMarket.samsungApps: url = 'samsungapps://ProductDetail/$packageName';
+      break;
+    case AppMarket.other:
+      if (context != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Other market logic not implemented yet.')),
+        );
+      }
+      return;
+  }
+
+  final uri = Uri.parse(url);
+
+  try {
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (market == AppMarket.playStore) {
+        final webUrl = 'https://play.google.com/store/apps/details?id=$packageName';///todo
+        final webUri = Uri.parse(webUrl);
+        if (await canLaunchUrl(webUri)) {
+          await launchUrl(webUri, mode: LaunchMode.externalApplication);
+        } else {
+          if (context != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Could not open Play Store for $packageName')),
+            );
+          }
+          print('Could not launch $webUrl');
+        }
+      } else if (market == AppMarket.samsungApps) {
+        final webUrl = 'https://galaxystore.samsung.com/detail/$packageName';
+        final webUri = Uri.parse(webUrl);
+        if (await canLaunchUrl(webUri)) {
+          await launchUrl(webUri, mode: LaunchMode.externalApplication);
+        } else {
+          // اگر حتی نسخه وب هم باز نشد
+          if (context != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Could not open Samsung Apps for $packageName')),
+            );
+          }
+          print('Could not launch $webUrl');
+        }
+      }
+      else {
+        // برای سایر مارکت‌هایی که نسخه وب عمومی ندارند یا URL آن را نمی‌دانیم
+        if (context != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not open ${market.name} for $packageName')),
+          );
+        }
+        print('Could not launch $url');
+      }
+    }
+  } catch (e) {
+    // گرفتن خطاهای احتمالی دیگر در هنگام اجرای launchUrl
+    if (context != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: ${e.toString()}')),
+      );
+    }
+    print('Error launching URL: $e');
+  }
 }
